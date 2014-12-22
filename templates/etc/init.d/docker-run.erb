@@ -79,7 +79,8 @@ start() {
         $docker pull <%= @image %>
     <% end -%>
     <% if @use_name -%>
-        $docker inspect <%= @name %> && $docker start <%= @name %>
+        exited="$($docker ps -aq -f 'status=exited' -f 'name=<%= @name %>')"
+        [ -z "$exited" ] || $docker rm $exited
         $docker inspect <%= @name %> || $docker run --cidfile=$cidfile -d=true \
     <% else -%>
         $docker run --cidfile=$cidfile -d=true \
