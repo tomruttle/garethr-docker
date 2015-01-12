@@ -14,6 +14,7 @@ describe 'docker', :type => :class do
           :operatingsystemrelease => '10.04',
         } }
         service_config_file = '/etc/default/docker'
+        storage_config_file = '/etc/default/docker'
 
         it { should contain_service('docker').with_hasrestart('false') }
         it { should contain_class('apt') }
@@ -55,9 +56,11 @@ describe 'docker', :type => :class do
       if osfamily == 'RedHat'
         let(:facts) { {
           :osfamily => osfamily,
+          :operatingsystem => 'RedHat',
           :operatingsystemrelease => '6.5'
         } }
         service_config_file = '/etc/sysconfig/docker'
+        storage_config_file = '/etc/sysconfig/docker-storage'
 
         context 'with proxy param' do
           let(:params) { {'proxy' => 'http://127.0.0.1:3128' } }
@@ -82,6 +85,7 @@ describe 'docker', :type => :class do
           :osfamily => osfamily,
         } }
         service_config_file = '/etc/conf.d/docker'
+        storage_config_file = '/etc/conf.d/docker'
       end
 
       it { should compile.with_all_deps }
@@ -140,7 +144,7 @@ describe 'docker', :type => :class do
 
       context 'with storage driver param' do
         let(:params) { { 'storage_driver' => 'devicemapper' }}
-        it { should contain_file(service_config_file).with_content(/--storage-driver=devicemapper/) }
+        it { should contain_file(storage_config_file).with_content(/--storage-driver=devicemapper/) }
       end
 
       context 'without execdriver param' do
@@ -176,6 +180,17 @@ describe 'docker', :type => :class do
 
       context 'with a string extra parameters' do
         let(:params) { {'extra_parameters' => '--this this' } }
+        it { should contain_file(service_config_file).with_content(/--this this/) }
+      end
+
+      context 'with multi shell values' do
+        let(:params) { {'shell_values' => ['--this this', '--that that'] } }
+        it { should contain_file(service_config_file).with_content(/--this this/) }
+        it { should contain_file(service_config_file).with_content(/--that that/) }
+      end
+
+      context 'with a string shell values' do
+        let(:params) { {'shell_values' => '--this this' } }
         it { should contain_file(service_config_file).with_content(/--this this/) }
       end
 
@@ -268,6 +283,7 @@ describe 'docker', :type => :class do
   context 'specific to RedHat' do
     let(:facts) { {
       :osfamily => 'RedHat',
+      :operatingsystem => 'RedHat',
       :operatingsystemrelease => '6.5'
     } }
 
@@ -285,6 +301,7 @@ describe 'docker', :type => :class do
   context 'specific to RedHat 7 or above' do
     let(:facts) { {
       :osfamily => 'RedHat',
+      :operatingsystem => 'RedHat',
       :operatingsystemrelease => '7.0'
     } }
 
@@ -324,6 +341,7 @@ describe 'docker', :type => :class do
   context 'specific to older RedHat based distros' do
     let(:facts) { {
       :osfamily => 'RedHat',
+      :operatingsystem => 'RedHat',
       :operatingsystemrelease => '6.4'
     } }
     it do

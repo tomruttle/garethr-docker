@@ -187,12 +187,28 @@ Specifying `pull_on_start` will pull the image before each time it is started.
 
 The `depends` option allows expressing containers that must be started before. This affects the generation of the init.d/systemd script.
 
+The service file created for systemd and upstart based systems enables automatic restarting of the service on failure by default.
+
 To use an image tag just append the tag name to the image name separated by a semicolon:
 
 ```puppet
 docker::run { 'helloworld':
   image   => 'ubuntu:precise',
   command => '/bin/sh -c "while true; do echo hello world; sleep 1; done"',
+}
+```
+
+### Exec
+
+Docker also supports running arbitrary comments within the context of a
+running container. And now so does the Puppet module.
+
+```puppet
+docker::exec { 'helloworld-uptime':
+  detached  => true,
+  container => 'helloworld',
+  command   => 'uptime',
+  tty       => true,
 }
 ```
 
